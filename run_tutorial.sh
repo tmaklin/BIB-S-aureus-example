@@ -35,7 +35,7 @@ sed 's/-//g' data/ref_seqs.fasta > data/ref_seqs_gapless.fasta
 
 ## Step 7
 echo "Building alignment index"
-python $BIB_prepare_index_path ref_seqs_gapless.fasta reference_alignment_index
+python $BIB_prepare_index_path data/ref_seqs_gapless.fasta reference_alignment_index
 
 ## Step 7.5
 echo "Downloading reads"
@@ -43,4 +43,4 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR016/SRR016122/SRR016122.fastq.gz
 
 ## Step 8
 echo "Aligning reads and estimating relative abundances"
-python $BIB_analyse_reads_path SRR016122.fastq.gz ref_seqs_gapless.fasta reference_alignment_index SRR016122_abundances
+python $BIB_analyse_reads_path SRR016122.fastq.gz data/ref_seqs_gapless.fasta reference_alignment_index SRR016122_abundances
