@@ -16,7 +16,7 @@ Steps 1.-6. can take up to an hour to run. The end result ```ref_seqs_gapless.fa
 The example read file ```SRR016122.fastq.gz``` can be downloaded from the [European Nucleotide Archive](https://www.ebi.ac.uk/ena/data/view/SRR016122).
 
 1. Obtain the full alignment of the assemblies.
-    > progressiveMauve --output=full_alignment.xmfa saur_assemblies.fasta
+    > progressiveMauve --output=full_alignment.xmfa data/saur_assemblies.fasta
 
 2. Extract LCBs shared by all genomes. The first number "500" is the
    minimum length of the LCB; the second number "4" indicates the
