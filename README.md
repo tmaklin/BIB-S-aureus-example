@@ -1,6 +1,6 @@
 # BIB *Staphylococcus aureus* tutorial
 
-Example of using BIB to identify *Staphylococcus aureus* strains.
+Example of using BIB to identify *Staphylococcus aureus* strains. To run all the commands at once, install the required software and run the ```run_tutorial.sh``` script.
 
 ## External software required to run the tutorial
 1. [progressiveMauve and stripSubsetLCBs](http://darlinglab.org/mauve/download.html).
