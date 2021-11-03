@@ -1,47 +1,80 @@
-# BIB *Staphylococcus aureus* tutorial
+# mSWEEP/mGEMS *Escherichia coli* plate sweep metagenomics tutorial
 
-Example of using BIB to identify *Staphylococcus aureus* strains. To run all the commands at once, install the required software and run the ```run_tutorial.sh``` script.
+Example of using mSWEEP and mGEMS to identify *E. coli* strains from
+mixed samples, all the way from clustering reference sequences to
+assembling binned reads.
+
+Each command is documented below individually. To run all the commands
+at once, install the required software and run the
+```run_tutorial.sh``` script.
 
 ## External software required to run the tutorial
-1. [progressiveMauve and stripSubsetLCBs](http://darlinglab.org/mauve/download.html).
-2. [hierBAPS](http://www.helsinki.fi/bsg/software/BAPS/)
-3. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
-4. [BitSeq](https://bitseq.github.io/)
-5. [BIB](https://github.com/PROBIC/BIB)
+1. [PopPUNK v2.4.0](https://github.com/johnlees/PopPUNK)
+2. [mlst v2.19.0](mlst])https://github.com/tseemann/mlst)
+3. [Themisto v1.2.0](https://github.com/algbio/themisto)
+4. [mSWEEP v1.5.0](https://github.com/PROBIC/mSWEEP)
+5. [mGEMS v1.1.0](https://github.com/PROBIC/mGEMS)
+
+The version numbers refer to the versions of the software that were
+used when this tutorial was published.
 
 ## Tutorial
 
-Steps 1.-6. can take up to an hour to run. The end result ```ref_seqs_gapless.fasta``` file is provided if you wish to skip the steps.
+### Install the required software
+#### PopPUNK
+Using conda:
+```
+conda create --name poppunk=2.4.0
+conda install -c defaults -c bioconda -c conda-forge poppunk
+```
 
-The example read file ```SRR016122.fastq.gz``` can be downloaded from the [European Nucleotide Archive](https://www.ebi.ac.uk/ena/data/view/SRR016122).
+#### mlst
+Using conda:
+```
+conda create --name mlst
+conda install -c defaults -c bioconda -c conda-forge mlst=2.19.0
+```
 
-1. Obtain the full alignment of the assemblies.
-    > progressiveMauve --output=full_alignment.xmfa data/saur_assemblies.fasta
+#### Themisto
+1. Download the binaries for your system from (https://github.com/algbio/themisto/releases/tag/v1.2.0)
+2. ... or compile Themisto from source by running:
+```
+wget -O themisto_v1.2.0_src.tar.gz https://github.com/algbio/themisto/archive/refs/tags/v1.2.0.tar.gz
+tar -zxvf themisto_v1.2.0_src.tar.gz
+cd themisto_v1.2.0_src/build
+cd build
+cmake -DCMAKE_MAX_KMER_LENGTH=32 ..
+make -j3
+```
 
-2. Extract LCBs shared by all genomes. The first number "500" is the
-   minimum length of the LCB; the second number "4" indicates the
-   minimum number of genomes that share an LCB.
-   
-    >stripSubsetLCBs full_alignment.xmfa full_alignment.xmfa.bbcols core_alignment.xmfa 500 4
+Compiling Themisto from source can take a few minutes, so feel free to
+go grab some coffee/tea/water.
 
-3. Concatenate all the LCBs.
-    > perl xmfa2fasta.pl --file core_alignment.xmfa > core_alignment.fasta
+#### mSWEEP
+1. Download the binaries for your system from (https://github.com/PROBIC/mSWEEP/releases/tag/v1.5.0)
+2. ... or compile mSWEEP from source by running:
+```
+wget -O mSWEEP_v1.5.0_src.tar.gz https://github.com/PROBIC/mSWEEP/archive/refs/tags/v1.5.0.tar.gz
+tar -zxvf mSWEEP_v1.5.0_src.tar.gz
+cd mSWEEP_v1.5.0_src
+mkdir build
+cd build
+cmake ..
+make -j
+```
 
-4. Run hierBAPS to obtain a clustering with "1" level and a maximum of "10" clusters. The clustering is stored in the ```results.partition.txt``` file. Sequences ">1" and ">2" belong to cluster 1; sequences ">3" and ">4" to cluster 2.
-    >hierBAPS.sh exData core_alignment.fasta fasta
-	
-    >hierBAPS.sh hierBAPS seqs.mat 1 10 results
+#### mGEMS
+1. Download the binaries for your system from (https://github.com/PROBIC/mGEMS/releases/tag/v1.1.0)
+2. ... or compile mGEMS from source by running:
+```
+wget -O mGEMS_v1.1.0_src.tar.gz https://github.com/PROBIC/mGEMS/archive/refs/tags/v1.1.0.tar.gz
+tar -zxvf mGEMS_v1.1.0_src.tar.gz
+cd mGEMS_v1.1.0_src
+mkdir build
+cd build
+cmake ..
+make -j
+```
 
-5. Select sequences ">1" and ">3" to represent the clusters using ```fastagrep.sh``` from the BitSeq package.
-    > fastagrep.sh ">1 " core_alignment.fasta > ref_seqs.fasta
+### Download the reference data
 
-    > fastagrep.sh ">3 " core_alignment.fasta >> ref_seqs.fasta
-
-6. Remove gaps from the reference sequences.
-    > sed 's/-//g' ref_seqs.fasta > ref_seqs_gapless.fasta
-
-7. Build the alignment index.
-    > python BIB_prepare_index.py ref_seqs_gapless.fasta reference_alignment_index
-
-8. Perform the read alignment and abundance estimation.
-    > python BIB_analyse_reads.py SRR016122.fastq.gz ref_seqs_gapless.fasta reference_alignment_index SRR016122_abundances
